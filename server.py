@@ -13,15 +13,9 @@ load_dotenv(".env")
 
 MODEL_PROVIDER = "grok"  # "hf" or "grok"
 
-# Hugging Face setup
-HF_TOKEN = os.getenv("HF_API_KEY")
-if not HF_TOKEN and MODEL_PROVIDER == "hf":
-    raise Exception("HF_API_KEY not set in .env")
-hf_client = InferenceClient("Qwen/Qwen3-4B-Instruct-2507", token=HF_TOKEN)
-
 # Grok setup
 GROK_API_KEY = os.getenv("GROK_API_KEY")
-if not GROK_API_KEY and MODEL_PROVIDER == "grok":
+if not GROK_API_KEY:
     raise Exception("GROK_API_KEY not set in .env")
 grok_client = OpenAI(
     api_key=GROK_API_KEY,
@@ -63,27 +57,31 @@ async def normalize(request: NormalizeRequest):
         {
             "role": "user",
             "content": f"""
-        Return ONLY valid JSON.
+    
+            Return ONLY valid JSON.
 
-        Format:
-        {{
-        "original_field_name": {{
-            "primary": "normalized_name",
-            "alternatives": ["alt_name_1", "alt_name_2"]
-        }}
-        }}
+            Format:
+            {{
+            "original_field_name": {{
+                "primary": "normalized_name",
+                "alternatives": ["alt_name_1", "alt_name_2"]
+            }}
+            }}
 
-        Rules:
-        - Use snake_case
-        - Keep medical terminology accurate
-        - Primary = most common/standard term
-        - Alternatives = synonyms or related terms, different than Primary
+            Rules:
+            - Use snake_case
+            - Keep medical terminology accurate
+            - Primary = most common/standard term
+            - Alternatives = synonyms or related terms, different than Primary
 
-        Fields:
-        {fields_str}
-        """
-                }
-            ]
+            Fields:
+            {fields_str}
+            """
+        }
+    ]
+    print(prompt_messages)
+
+
 
     try:
         if MODEL_PROVIDER == "hf":
