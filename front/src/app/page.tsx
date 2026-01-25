@@ -42,7 +42,7 @@ export default function CSVColumnMapper() {
 
           // Filter to only show "Variable / Field Name" and "Field Label"
           const filteredHeaders = allHeaders.filter(h =>
-            h === 'Variable / Field Name' || h === 'Field Label'
+            h === 'Variable / Field Name'
           );
           setHeaders(filteredHeaders);
 
@@ -68,11 +68,12 @@ export default function CSVColumnMapper() {
 
   const getColumnSample = (columnName) => {
     if (!csvData) return [];
-    return csvData.slice(0, 7).map(row => row[columnName]);
+    return csvData.slice(1, 7).map(row => row[columnName]);
   };
 
   const hasValidData = (columnName) => {
     const sample = getColumnSample(columnName);
+    console.log("Sample : ", sample)
     return sample.some(v => v !== null && v !== undefined && v !== '');
   };
 
@@ -89,7 +90,7 @@ export default function CSVColumnMapper() {
     selectedColumns.forEach(column => {
       payload[column] = getColumnSample(column);
     });
-    console.log(JSON.stringify({ data: payload }))
+    // console.log(JSON.stringify({ data: payload }))
     try {
       const response = await fetch('http://127.0.0.1:8000/api/normalize', {
         method: 'POST',

@@ -8,7 +8,8 @@ from huggingface_hub import InferenceClient
 from openai import OpenAI
 import json
 import pandas as pd
-
+from rag.pipeline import run_rag
+import tiktoken
 load_dotenv(".env")
 
 MODEL_PROVIDER = "grok"  # "hf" or "grok"
@@ -40,68 +41,45 @@ app.add_middleware(
 class NormalizeRequest(BaseModel):
     data: Dict[str, List[Any]]  # columns -> samples
 
+import re
+
+def extract_json(text):
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    raise ValueError("No valid JSON found in model response")
+
 @app.post("/api/normalize")
 async def normalize(request: NormalizeRequest):
-    try: 
+    try:
         df = pd.DataFrame(request.data)
-        fields_str = df.to_csv(index=False)
-
+        fields = df["Variable / Field Name"].tolist()
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid input data: {str(e)}")
-
-    prompt_messages = [
-        {
-            "role": "system",
-            "content": "You are a medical data normalization API in Germany. Output only valid JSON."
-        },
-        {
-            "role": "user",
-            "content": f"""
-    
-            Return ONLY valid JSON.
-
-            Format:
-            {{
-            "original_field_name": {{
-                "primary": "normalized_name",
-                "alternatives": ["alt_name_1", "alt_name_2"]
-            }}
-            }}
-
-            Rules:
-            - Use snake_case
-            - Keep medical terminology accurate
-            - Primary = most common/standard term
-            - Alternatives = synonyms or related terms, different than Primary
-
-            Fields:
-            {fields_str}
-            """
-        }
-    ]
-    print(prompt_messages)
-
-
+        raise HTTPException(status_code=400, detail=str(e))
+    print(fields)
+    prompt_messages = run_rag(fields)
 
     try:
-        if MODEL_PROVIDER == "hf":
-            reply = hf_client.chat_completion(prompt_messages, max_tokens=700)
-            response_text = reply.choices[0].message.content
+        if MODEL_PROVIDER == "grok":
+            encoding = tiktoken.get_encoding("cl100k_base")
+            num_tokens = len(encoding.encode(json.dumps(prompt_messages)))
+            print(f"Number of tokens in prompt: {num_tokens}")
 
-        elif MODEL_PROVIDER == "grok":
             completion = grok_client.chat.completions.create(
                 model="grok-4-1-fast-non-reasoning",
                 messages=prompt_messages,
                 temperature=0
             )
             response_text = completion.choices[0].message.content.strip()
+            print("Response from Grok:")
             print(response_text)
         else:
             raise HTTPException(status_code=500, detail="Invalid MODEL_PROVIDER configured")
 
         try:
-            normalized = json.loads(response_text)
+            normalized = extract_json(response_text)
         except json.JSONDecodeError:
+            print("asdasdsa")
             raise HTTPException(
                 status_code=502,
                 detail=f"Model returned invalid JSON: {response_text}"
@@ -110,4 +88,5 @@ async def normalize(request: NormalizeRequest):
         return normalized
 
     except Exception as e:
+        print("zxoicxiohcxzihcxzhio")
         raise HTTPException(status_code=500, detail=str(e))
