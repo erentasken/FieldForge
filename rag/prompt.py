@@ -2,7 +2,11 @@ def build_prompt(fields, dataInformation):
     return [
         {
             "role": "system",
-            "content": "Medical data normalization expert. Output valid JSON only using snake_case and accurate medical terminology."
+            "content": (
+                "You are a medical data normalization expert specializing in ML feature engineering. "
+                "Your goal is to normalize field names while preserving maximal semantic information. "
+                "Output VALID JSON only, using snake_case, ML-safe identifiers, and accurate medical terminology."
+            )
         },
         {
             "role": "user",

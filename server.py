@@ -4,12 +4,13 @@ from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
 from typing import Dict, Any, List
-from huggingface_hub import InferenceClient
 from openai import OpenAI
 import json
 import pandas as pd
 from rag.pipeline import run_rag
 import tiktoken
+import re
+
 load_dotenv(".env")
 
 MODEL_PROVIDER = "grok"  # "hf" or "grok"
@@ -41,7 +42,6 @@ app.add_middleware(
 class NormalizeRequest(BaseModel):
     data: Dict[str, List[Any]]  # columns -> samples
 
-import re
 
 def extract_json(text):
     match = re.search(r'\{.*\}', text, re.DOTALL)
@@ -79,7 +79,6 @@ async def normalize(request: NormalizeRequest):
         try:
             normalized = extract_json(response_text)
         except json.JSONDecodeError:
-            print("asdasdsa")
             raise HTTPException(
                 status_code=502,
                 detail=f"Model returned invalid JSON: {response_text}"
