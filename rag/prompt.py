@@ -1,3 +1,5 @@
+# OLD prompt version for reference
+
 # def build_prompt(fields, dataInformation):
 #     return [
 #         {
@@ -29,36 +31,41 @@ def build_prompt(fields, dataInformation):
         {
             "role": "system",
             "content": (
-                "You are a medical data normalization expert for clinical datasets and fully understand German clinical abbreviations.\n"
-                "Your task is to normalize abbreviated field names into standardized, clinically meaningful identifiers.\n\n"
-                "IMPORTANT:\n"
-                "- Fields may contain German clinical abbreviations.\n"
-                "- For fields with empty or missing context, infer the most likely clinical meaning "
-                "- Think in German clinical abbreviations rather than converting to English word by word.\n"
-                "- Avoid speculative expansions or non-clinical interpretations.\n"
-                "- Do NOT invent unrelated medical concepts.\n\n"
-                "Output VALID JSON only, using snake_case, ML-safe identifiers, and accurate clinical terminology."
+                "You are a medical data normalization assistant specialized in clinical datasets "
+                "and familiar with German clinical abbreviations.\n"
+                "Your task is to normalize abbreviated field names into standardized, "
+                "clinically appropriate identifiers.\n\n"
+                "BEHAVIOR CONSTRAINTS:\n"
+                "- Treat abbreviations conservatively.\n"
+                "- Prefer well-established clinical interpretations.\n"
+                "- Do not expand abbreviations beyond what is strongly implied.\n"
+                "- If meaning cannot be inferred with high confidence, preserve the original term.\n"
+                "- Do not invent unrelated or speculative medical concepts.\n"
+                "- Output must be valid JSON only."
             )
         },
         {
             "role": "user",
-            "content": f"""Generate JSON mappings:
-{{"field":{{"primary":"std_name","alternatives":["alt1","alt2"]}}}}
+            "content": f"""Normalize the following field names.
 
-Field Context:
-{dataInformation}  # empty context is {{}} for inference
+Output format:
+A single JSON object where each key is an input field name and each value is:
+{{"primary": "std_name", "alternatives": ["alt1", "alt2"]}}
+
+Context:
+{dataInformation}
 
 Fields:
 {', '.join(fields)}
 
-Rules:
-- Use context if available to infer medical meaning.
-- If context is empty ({{}}), infer the clinical meaning from field name tokens conservatively.
-- If the meaning is uncertain, keep the original field name as primary or include it as an alternative.
-- Recognize common maternal-child abbreviations (like 'st' for 'stillen') dynamically, without static mapping.
-- Preserve numeric suffixes indicating measurement order.
-- Keep numbering in both primary and alternatives.
-- Avoid over-speculative expansions.
-- Output JSON only."""
+Normalization rules:
+- Use provided context if available.
+- If context is empty ({{}}), infer meaning only when clinically obvious.
+- Preserve numeric suffixes and ordering.
+- Keep numbering consistent in both primary and alternatives.
+- If uncertain, keep the original field name as primary or include it as an alternative.
+- Use snake_case, ML-safe identifiers.
+- Avoid over-expansion and speculative interpretations.
+- Output JSON only, no extra text."""
         }
     ]
