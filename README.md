@@ -1,6 +1,8 @@
-# CSV Normalizer with RAG Architecture
+# FieldForge
 
-**AI-powered CSV normalization** with Next.js frontend and FastAPI backend using Retrieval-Augmented Generation.
+**AI-powered field standardization** — Forge standardized field names from raw CSV data using Retrieval-Augmented Generation.
+
+![FieldForge](https://img.shields.io/badge/FieldForge-RAG%20%2B%20AI-blue)
 
 ---
 
@@ -22,14 +24,14 @@ docker compose -f docker-compose.dev.yml up --build
 ## Project Structure
 
 ```
-csv-normalizer/
+fieldforge/
 ├── front/                  # Next.js UI
 ├── rag/                    # RAG pipeline modules
-│   ├── embeddings.py
-│   ├── knowledge.py
-│   ├── pipeline.py
-│   ├── prompt.py
-│   └── retriever.py
+│   ├── embeddings.py       # Vector embeddings (BioBERT)
+│   ├── knowledge.py        # Medical abbreviation glossary
+│   ├── pipeline.py         # RAG orchestration
+│   ├── prompt.py           # LLM prompt templates
+│   └── retriever.py        # FAISS similarity search
 ├── server.py               # FastAPI backend
 ├── docker-compose.dev.yml
 └── .env.example
@@ -100,15 +102,20 @@ docker compose -f docker-compose.dev.yml down
 ## Features
 
 **Frontend (Next.js):**
-- CSV upload with preview
-- AI-assisted column mapping
-- Accept/reject suggestions
+- Drag & drop CSV upload
+- Interactive column selection
+- AI-powered normalization suggestions
+- Human-in-the-loop review (accept/reject)
+- Alternative mapping selection
 - Download transformed CSV
+- Step-by-step progress indicator
 - Responsive UI (Tailwind CSS)
 
 **Backend (FastAPI):**
 - `/api/normalize` endpoint
 - RAG-powered mapping suggestions
+- Medical abbreviation knowledge base
+- FAISS vector similarity search
 
 ---
 
