@@ -428,7 +428,7 @@ export default function CSVColumnMapper() {
                           {/* Alternatives */}
                           {suggestion.alternatives.length > 0 && (
                             <div className="mt-auto pt-3 border-t border-gray-200/50">
-                              <p className="text-xs text-gray-500 mb-2">Alternatives</p>
+                              <p className="text-xs text-gray-500 mb-2">Suggestions</p>
                               <div className="flex flex-wrap gap-1.5">
                                 {[suggestion.primary, ...suggestion.alternatives].map((alt) => (
                                   <button
