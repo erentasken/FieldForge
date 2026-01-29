@@ -14,15 +14,22 @@ faiss.normalize_L2(emb)
 index = faiss.IndexFlatIP(emb.shape[1])
 index.add(emb)
 
-def retrieve(field: str, relateDic, k=2, threshold=0.6):
+def retrieve(field: str, relateDic, k=2, threshold=0.5):
     q = _embedder.encode([field.lower()], convert_to_tensor=False).astype(np.float32)
     faiss.normalize_L2(q)
     D, I = index.search(q, k)
 
     subDic = {}
-    for idx in I[0]:  # I is a 2D array: shape (1, k)
-        subDic[golden_raw[idx]] = golden_norm[idx]
+    # for idx in I[0]:  # I is a 2D array: shape (1, k)
+    #     subDic[golden_raw[idx]] = golden_norm[idx]
+
+    for i, d in zip(I[0], D[0]):
+        if i >= 0:
+            if d > threshold:
+                subDic[golden_raw[i]] = golden_norm[i]
+
     relateDic[field] = subDic
+    # print(relateDic)
     return [
         f'{golden_raw[i]}→{golden_norm[i]}'
         for i, d in zip(I[0], D[0])
