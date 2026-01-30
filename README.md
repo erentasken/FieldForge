@@ -23,7 +23,15 @@ docker compose -f docker-compose.dev.yml up --build
 
 ## Demo
 
-![Demo](demo.gif)
+![Demo](media/demo.gif)
+
+### Sample Outputs
+
+| | | |
+|:---:|:---:|:---:|
+| ![Sample 1](media/sample1.jpeg) | ![Sample 2](media/sample2.jpeg) | ![Sample 3 (without context)](media/sample3.jpeg) |
+
+---
 
 ## Project Structure
 
