@@ -21,6 +21,10 @@ docker compose -f docker-compose.dev.yml up --build
 
 ---
 
+## Demo
+
+![Demo](demo.gif)
+
 ## Project Structure
 
 ```
